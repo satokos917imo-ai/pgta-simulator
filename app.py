@@ -1,4 +1,29 @@
 import streamlit as st
+
+# ==========================================
+# 🔒 パスワードロック機能（一番上に配置する）
+# ==========================================
+# まだ認証されていない場合は初期状態にセット
+if "password_correct" not in st.session_state:
+    st.session_state["password_correct"] = False
+
+# パスワードが通っていない時の画面表示
+if not st.session_state["password_correct"]:
+    st.title("PGT-A費用対効果シミュレーター")
+    st.info("アクセスするにはパスワードを入力してください。")
+    
+    password = st.text_input("パスワード", type="password")
+    
+    if st.button("ログイン"):
+        # ⚠️ 以下の "pgta2026" の部分をお好きなパスワードに変更してください
+        if password == "pgta2026": 
+            st.session_state["password_correct"] = True
+            st.rerun() # 認証成功後、画面をリロードして本編を表示
+        else:
+            st.error("😕 パスワードが違います")
+    
+    # 認証されるまで、これより下のプログラムは一切読み込まれません（完全に隠蔽されます）
+    st.stop()
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
