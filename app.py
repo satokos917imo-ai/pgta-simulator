@@ -310,43 +310,41 @@ m_pgta = get_metrics(df_pgta)
 st.divider()
 st.subheader(f"シミュレーション結論（{current_age}歳 / 期待採卵数 {expected_eggs}個 / 保険残り {rem_limit}回）")
 
+# 見出しの余白を整えるための微調整CSS
+st.markdown("""
+<style>
+.dashboard-heading { font-size: 0.95em; font-weight: bold; margin-top: 15px; margin-bottom: -15px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+.dashboard-sub { font-size: 0.75em; color: gray; font-weight: normal; }
+</style>
+""", unsafe_allow_html=True)
+
 col1, col2 = st.columns(2)
 
 with col1:
     st.info("**🏥 保険適用（PGT-Aなし）の場合**")
-    # 平均の表示
-    st.metric(label="平均的な治療期間（半数の方が卒業する目安）", value=f"{m_no['median_time']:.1f} ヶ月")
-    st.metric(label="必要な総費用（半数の方が卒業する目安）", value=f"{m_no['median_cost_total']/10000:,.0f} 万円")
     
-    # ★追加：難航した場合（最大値）の表示をコンパクトに配置
-    st.markdown("""
-    <div style='background-color:rgba(255,255,255,0.5); padding:10px; border-radius:5px; margin-top:10px;'>
-        <div style='font-size:0.9em; font-weight:bold; color:#555; margin-bottom:5px;'>■ 治療が難航した場合の目安 (10人中9人が収まる最大値)</div>
-        <div style='font-size:0.85em; color:#333;'>
-            最長期間: <span style='font-weight:bold; color:#E65100;'>{time} ヶ月</span><br>
-            最大費用: <span style='font-weight:bold; color:#E65100;'>{cost} 万円</span>
-        </div>
-    </div>
-    """.format(time=f"{m_no['p90_time']:.1f}", cost=f"{m_no['p90_cost_total']/10000:,.0f}"), unsafe_allow_html=True)
-
+    st.markdown("<div class='dashboard-heading'>■ 順調な場合 <span class='dashboard-sub'>(半数の方が卒業する平均目安)</span></div>", unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    c1.metric(label="期間", value=f"{m_no['median_time']:.1f} ヶ月")
+    c2.metric(label="費用", value=f"{m_no['median_cost_total']/10000:,.0f} 万円")
+    
+    st.markdown("<div class='dashboard-heading'>■ 難航した場合 <span class='dashboard-sub'>(10人中9人が収まる最大値)</span></div>", unsafe_allow_html=True)
+    c3, c4 = st.columns(2)
+    c3.metric(label="最長期間", value=f"{m_no['p90_time']:.1f} ヶ月")
+    c4.metric(label="最大費用", value=f"{m_no['p90_cost_total']/10000:,.0f} 万円")
 
 with col2:
     st.warning("**🔬 全額自費（PGT-Aあり）の場合**")
-    # 平均の表示
-    st.metric(label="平均的な治療期間（半数の方が卒業する目安）", value=f"{m_pgta['median_time']:.1f} ヶ月")
-    st.metric(label="必要な総費用（半数の方が卒業する目安）", value=f"{m_pgta['median_cost_total']/10000:,.0f} 万円")
     
-    # ★追加：難航した場合（最大値）の表示をコンパクトに配置
-    st.markdown("""
-    <div style='background-color:rgba(255,255,255,0.5); padding:10px; border-radius:5px; margin-top:10px;'>
-        <div style='font-size:0.9em; font-weight:bold; color:#555; margin-bottom:5px;'>■ 治療が難航した場合の目安 (10人中9人が収まる最大値)</div>
-        <div style='font-size:0.85em; color:#333;'>
-            最長期間: <span style='font-weight:bold; color:#E65100;'>{time} ヶ月</span><br>
-            最大費用: <span style='font-weight:bold; color:#E65100;'>{cost} 万円</span>
-        </div>
-    </div>
-    """.format(time=f"{m_pgta['p90_time']:.1f}", cost=f"{m_pgta['p90_cost_total']/10000:,.0f}"), unsafe_allow_html=True)
-
+    st.markdown("<div class='dashboard-heading'>■ 順調な場合 <span class='dashboard-sub'>(半数の方が卒業する平均目安)</span></div>", unsafe_allow_html=True)
+    c5, c6 = st.columns(2)
+    c5.metric(label="期間", value=f"{m_pgta['median_time']:.1f} ヶ月")
+    c6.metric(label="費用", value=f"{m_pgta['median_cost_total']/10000:,.0f} 万円")
+    
+    st.markdown("<div class='dashboard-heading'>■ 難航した場合 <span class='dashboard-sub'>(10人中9人が収まる最大値)</span></div>", unsafe_allow_html=True)
+    c7, c8 = st.columns(2)
+    c7.metric(label="最長期間", value=f"{m_pgta['p90_time']:.1f} ヶ月")
+    c8.metric(label="最大費用", value=f"{m_pgta['p90_cost_total']/10000:,.0f} 万円")
 # --- 詳細データエリア ---
 with st.expander("📊 詳細な内訳データを見る（期間・回数・費用）", expanded=True):
     tab_dt_time, tab_dt_count, tab_dt_cost = st.tabs(["⏳ 治療期間", "🏥 採卵・移植・流産回数", "💰 トータル費用"])
