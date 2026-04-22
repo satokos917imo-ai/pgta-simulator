@@ -311,16 +311,41 @@ st.divider()
 st.subheader(f"シミュレーション結論（{current_age}歳 / 期待採卵数 {expected_eggs}個 / 保険残り {rem_limit}回）")
 
 col1, col2 = st.columns(2)
+
 with col1:
     st.info("**🏥 保険適用（PGT-Aなし）の場合**")
+    # 平均の表示
     st.metric(label="平均的な治療期間（半数の方が卒業する目安）", value=f"{m_no['median_time']:.1f} ヶ月")
     st.metric(label="必要な総費用（半数の方が卒業する目安）", value=f"{m_no['median_cost_total']/10000:,.0f} 万円")
+    
+    # ★追加：難航した場合（最大値）の表示をコンパクトに配置
+    st.markdown("""
+    <div style='background-color:rgba(255,255,255,0.5); padding:10px; border-radius:5px; margin-top:10px;'>
+        <div style='font-size:0.9em; font-weight:bold; color:#555; margin-bottom:5px;'>■ 治療が難航した場合の目安 (10人中9人が収まる最大値)</div>
+        <div style='font-size:0.85em; color:#333;'>
+            最長期間: <span style='font-weight:bold; color:#E65100;'>{time} ヶ月</span><br>
+            最大費用: <span style='font-weight:bold; color:#E65100;'>{cost} 万円</span>
+        </div>
+    </div>
+    """.format(time=f"{m_no['p90_time']:.1f}", cost=f"{m_no['p90_cost_total']/10000:,.0f}"), unsafe_allow_html=True)
+
+
 with col2:
     st.warning("**🔬 全額自費（PGT-Aあり）の場合**")
+    # 平均の表示
     st.metric(label="平均的な治療期間（半数の方が卒業する目安）", value=f"{m_pgta['median_time']:.1f} ヶ月")
     st.metric(label="必要な総費用（半数の方が卒業する目安）", value=f"{m_pgta['median_cost_total']/10000:,.0f} 万円")
-
-st.divider()
+    
+    # ★追加：難航した場合（最大値）の表示をコンパクトに配置
+    st.markdown("""
+    <div style='background-color:rgba(255,255,255,0.5); padding:10px; border-radius:5px; margin-top:10px;'>
+        <div style='font-size:0.9em; font-weight:bold; color:#555; margin-bottom:5px;'>■ 治療が難航した場合の目安 (10人中9人が収まる最大値)</div>
+        <div style='font-size:0.85em; color:#333;'>
+            最長期間: <span style='font-weight:bold; color:#E65100;'>{time} ヶ月</span><br>
+            最大費用: <span style='font-weight:bold; color:#E65100;'>{cost} 万円</span>
+        </div>
+    </div>
+    """.format(time=f"{m_pgta['p90_time']:.1f}", cost=f"{m_pgta['p90_cost_total']/10000:,.0f}"), unsafe_allow_html=True)
 
 # --- 詳細データエリア ---
 with st.expander("📊 詳細な内訳データを見る（期間・回数・費用）", expanded=True):
