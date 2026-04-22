@@ -376,7 +376,7 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
                     <div>
                         <span style='font-weight:bold; color:#333;'>流産:</span> 
                         <span style='font-size:20px; font-weight:bold; color:#5D4037;'>{m_no['mean_mis']:.1f}</span> <span style='font-size:14px; color:#333;'>回</span><br>
-                        <span style='font-size:12px; color:gray;'>(ロスタイム: 約{m_no['mean_mis']*3:.1f}ヶ月)</span>
+                        <span style='font-size:12px; color:gray;'>(流産ロスタイム: 約{m_no['mean_mis']*3:.1f}ヶ月)</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -399,7 +399,7 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
                     <div>
                         <span style='font-weight:bold; color:#333;'>流産:</span> 
                         <span style='font-size:20px; font-weight:bold; color:#5D4037;'>{m_pgta['mean_mis']:.1f}</span> <span style='font-size:14px; color:#333;'>回</span><br>
-                        <span style='font-size:12px; color:gray;'>(ロスタイム: 約{m_pgta['mean_mis']*3:.1f}ヶ月)</span>
+                        <span style='font-size:12px; color:gray;'>(流産ロスタイム: 約{m_pgta['mean_mis']*3:.1f}ヶ月)</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -424,7 +424,7 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
                     <div>
                         <span style='font-weight:bold; color:#333;'>最大流産:</span> 
                         <span style='font-size:20px; font-weight:bold; color:#5D4037;'>{m_no['max_mis']:.0f}</span> <span style='font-size:14px; color:#333;'>回</span><br>
-                        <span style='font-size:12px; color:gray;'>(ロスタイム: 最大{m_no['max_mis']*3:.0f}ヶ月)</span>
+                        <span style='font-size:12px; color:gray;'>(流産ロスタイム: 最大{m_no['max_mis']*3:.0f}ヶ月)</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -447,7 +447,7 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
                     <div>
                         <span style='font-weight:bold; color:#333;'>最大流産:</span> 
                         <span style='font-size:20px; font-weight:bold; color:#5D4037;'>{m_pgta['max_mis']:.0f}</span> <span style='font-size:14px; color:#333;'>回</span><br>
-                        <span style='font-size:12px; color:gray;'>(ロスタイム: 最大{m_pgta['max_mis']*3:.0f}ヶ月)</span>
+                        <span style='font-size:12px; color:gray;'>(流産ロスタイム: 最大{m_pgta['max_mis']*3:.0f}ヶ月)</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
