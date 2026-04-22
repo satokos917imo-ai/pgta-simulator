@@ -151,7 +151,7 @@ def simulate_ivf(current_age, start_age, expected_eggs, fert_rate, blast_rate, p
         total_transfers = 0
         insurance_transfers = 0 
         self_transfers = 0
-        miscarriages = 0 # ★流産回数のカウント用変数を追加
+        miscarriages = 0 # 流産回数のカウント
         cost_insurance = 0
         cost_self = 0
         success = False
@@ -210,10 +210,10 @@ def simulate_ivf(current_age, start_age, expected_eggs, fert_rate, blast_rate, p
                     success = True
                     break
                 elif rand_val < current_lbr + (current_clin_preg_rate * misc_rate):
-                    # ★流産イベント発生時の処理
+                    # 流産時の処理
                     total_time += 3
-                    miscarriages += 1 # 流産回数をカウント
-                    cost_insurance += cost_miscarriage # 流産処置の費用を加算
+                    miscarriages += 1
+                    cost_insurance += cost_miscarriage
                 else:
                     pass
                     
@@ -228,7 +228,7 @@ def simulate_ivf(current_age, start_age, expected_eggs, fert_rate, blast_rate, p
             "transfers": total_transfers,
             "insurance_transfers": insurance_transfers,
             "self_transfers": self_transfers,
-            "miscarriages": miscarriages, # ★流産回数を結果に保存
+            "miscarriages": miscarriages,
         })
         
     return pd.DataFrame(results)
@@ -261,9 +261,7 @@ def get_metrics(df):
         "median_cost_total": df["cost_total"].quantile(0.5), "p90_cost_total": df["cost_total"].quantile(0.9),
         "median_cost_insurance": df["cost_insurance"].quantile(0.5), "median_cost_self": df["cost_self"].quantile(0.5),
         "p90_cost_insurance": df["cost_insurance"].quantile(0.9), "p90_cost_self": df["cost_self"].quantile(0.9),
-        # ★流産メトリクスの集計
-        "mean_mis": df["miscarriages"].mean(),
-        "max_mis": df["miscarriages"].quantile(0.9),
+        "mean_mis": df["miscarriages"].mean(), "max_mis": df["miscarriages"].quantile(0.9),
     }
 
 # --- 4. Streamlit UI設定 ---
@@ -272,7 +270,7 @@ st.title("不妊治療の必要費用および期間のシミュレーター")
 st.markdown("現在の年齢とAMHから、「保険適用（PGT-Aなし）」と「全額自費（PGT-Aあり）」の期間と費用を比較します。")
 st.caption("※本ツールは、Moon et al. (2016)、Pirtea et al. (2020)、およびHFEA統計基準のデータを統合し、反復不成功による着床率の低下（ベイズ更新）を加味して構築しています。")
 
-st.sidebar.header("あなたの情報を入力")
+st.sidebar.header("患者様の情報を入力")
 current_age = st.sidebar.slider("現在の年齢", 25, 45, 32)
 start_age = st.sidebar.slider("保険での体外受精治療開始時の年齢", 25, 45, 32)
 amh = st.sidebar.number_input("AMH (ng/mL)", min_value=0.00, max_value=20.00, value=2.00, step=0.01, format="%.2f")
@@ -325,7 +323,6 @@ with col2:
 st.divider()
 
 # --- 詳細データエリア ---
-# ★タブの見出しを変更
 with st.expander("📊 詳細な内訳データを見る（期間・回数・費用）", expanded=True):
     tab_dt_time, tab_dt_count, tab_dt_cost = st.tabs(["⏳ 治療期間", "🏥 採卵・移植・流産回数", "💰 トータル費用"])
 
@@ -337,13 +334,11 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
             with st.container(border=True):
                 st.markdown("🌱 **保険（PGT-Aなし）**")
                 st.markdown(f"<h3 style='margin:0; color:#FB8C00;'>{m_no['median_time']:.1f} <span style='font-size:16px;'>ヶ月</span></h3>", unsafe_allow_html=True)
-                # ★流産ロスタイムの補足を追加
                 st.caption(f"内訳：治療期間 ＋ 流産ロスタイム(平均{m_no['mean_mis']*3:.1f}ヶ月)")
         with col2:
             with st.container(border=True):
                 st.markdown("✨ **PGT-A（全額自費）**")
                 st.markdown(f"<h3 style='margin:0; color:#FB8C00;'>{m_pgta['median_time']:.1f} <span style='font-size:16px;'>ヶ月</span></h3>", unsafe_allow_html=True)
-                # ★流産ロスタイムの補足を追加
                 st.caption(f"内訳：治療期間 ＋ 流産ロスタイム(平均{m_pgta['mean_mis']*3:.1f}ヶ月)")
 
         st.markdown("**■ 最長期間 (10人中9人が収まる最大値)**")
@@ -352,10 +347,12 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
             with st.container(border=True):
                 st.markdown("🌱 **保険（PGT-Aなし）**")
                 st.markdown(f"<h3 style='margin:0; color:#666;'>{m_no['p90_time']:.1f} <span style='font-size:16px;'>ヶ月</span></h3>", unsafe_allow_html=True)
+                st.caption(f"内訳：治療期間 ＋ 流産ロスタイム(最大{m_no['max_mis']*3:.0f}ヶ月)")
         with col4:
             with st.container(border=True):
                 st.markdown("✨ **PGT-A（全額自費）**")
                 st.markdown(f"<h3 style='margin:0; color:#666;'>{m_pgta['p90_time']:.1f} <span style='font-size:16px;'>ヶ月</span></h3>", unsafe_allow_html=True)
+                st.caption(f"内訳：治療期間 ＋ 流産ロスタイム(最大{m_pgta['max_mis']*3:.0f}ヶ月)")
 
     # 2. 採卵・移植・流産回数タブ
     with tab_dt_count:
@@ -364,7 +361,6 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
         with col1:
             with st.container(border=True):
                 st.markdown("🌱 **保険（PGT-Aなし）**")
-                # ★流産の項目を追加
                 st.markdown(f"""
                 <div style='line-height: 1.4; margin-top: 8px;'>
                     <div style='margin-bottom: 12px;'>
@@ -388,7 +384,6 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
         with col2:
             with st.container(border=True):
                 st.markdown("✨ **PGT-A（全額自費）**")
-                # ★流産の項目を追加
                 st.markdown(f"""
                 <div style='line-height: 1.4; margin-top: 8px;'>
                     <div style='margin-bottom: 12px;'>
@@ -414,19 +409,22 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
         with col3:
             with st.container(border=True):
                 st.markdown("🌱 **保険（PGT-Aなし）**")
-                # ★最大流産回数を追加
                 st.markdown(f"""
                 <div style='line-height: 1.4; margin-top: 8px;'>
-                    <div style='margin-bottom: 8px;'>
-                        <span style='font-weight:bold; color:#555;'>最大採卵:</span> <span style='font-size:16px;'>{m_no['max_coll']:.0f}</span> 回<br>
-                        <span style='font-size:12px; color:gray;'>(保険 {m_no['p90_ins_coll']:.0f}回 / 自費 {m_no['p90_self_coll']:.0f}回)</span>
+                    <div style='margin-bottom: 12px;'>
+                        <span style='font-weight:bold; color:#333;'>最大採卵:</span> 
+                        <span style='font-size:20px; font-weight:bold; color:#43A047;'>{m_no['max_coll']:.0f}</span> <span style='font-size:14px; color:#333;'>回</span><br>
+                        <span style='font-size:12px; color:gray;'>(内訳: 保険 {m_no['p90_ins_coll']:.0f}回 / 自費 {m_no['p90_self_coll']:.0f}回)</span>
                     </div>
-                    <div style='margin-bottom: 8px;'>
-                        <span style='font-weight:bold; color:#555;'>最大移植:</span> <span style='font-size:16px;'>{m_no['max_trans']:.0f}</span> 回<br>
-                        <span style='font-size:12px; color:gray;'>(保険 {m_no['p90_ins_trans']:.0f}回 / 自費 {m_no['p90_self_trans']:.0f}回)</span>
+                    <div style='margin-bottom: 12px;'>
+                        <span style='font-weight:bold; color:#333;'>最大移植:</span> 
+                        <span style='font-size:20px; font-weight:bold; color:#E53935;'>{m_no['max_trans']:.0f}</span> <span style='font-size:14px; color:#333;'>回</span><br>
+                        <span style='font-size:12px; color:gray;'>(内訳: 保険 {m_no['p90_ins_trans']:.0f}回 / 自費 {m_no['p90_self_trans']:.0f}回)</span>
                     </div>
                     <div>
-                        <span style='font-weight:bold; color:#555;'>最大流産:</span> <span style='font-size:16px;'>{m_no['max_mis']:.0f}</span> 回
+                        <span style='font-weight:bold; color:#333;'>最大流産:</span> 
+                        <span style='font-size:20px; font-weight:bold; color:#5D4037;'>{m_no['max_mis']:.0f}</span> <span style='font-size:14px; color:#333;'>回</span><br>
+                        <span style='font-size:12px; color:gray;'>(ロスタイム: 最大{m_no['max_mis']*3:.0f}ヶ月)</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -434,19 +432,22 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
         with col4:
             with st.container(border=True):
                 st.markdown("✨ **PGT-A（全額自費）**")
-                # ★最大流産回数を追加
                 st.markdown(f"""
                 <div style='line-height: 1.4; margin-top: 8px;'>
-                    <div style='margin-bottom: 8px;'>
-                        <span style='font-weight:bold; color:#555;'>最大採卵:</span> <span style='font-size:16px;'>{m_pgta['max_coll']:.0f}</span> 回<br>
-                        <span style='font-size:12px; color:gray;'>(全額自費 {m_pgta['p90_self_coll']:.0f}回)</span>
+                    <div style='margin-bottom: 12px;'>
+                        <span style='font-weight:bold; color:#333;'>最大採卵:</span> 
+                        <span style='font-size:20px; font-weight:bold; color:#43A047;'>{m_pgta['max_coll']:.0f}</span> <span style='font-size:14px; color:#333;'>回</span><br>
+                        <span style='font-size:12px; color:gray;'>(内訳: 全額自費 {m_pgta['p90_self_coll']:.0f}回)</span>
                     </div>
-                    <div style='margin-bottom: 8px;'>
-                        <span style='font-weight:bold; color:#555;'>最大移植:</span> <span style='font-size:16px;'>{m_pgta['max_trans']:.0f}</span> 回<br>
-                        <span style='font-size:12px; color:gray;'>(全額自費 {m_pgta['p90_self_trans']:.0f}回)</span>
+                    <div style='margin-bottom: 12px;'>
+                        <span style='font-weight:bold; color:#333;'>最大移植:</span> 
+                        <span style='font-size:20px; font-weight:bold; color:#E53935;'>{m_pgta['max_trans']:.0f}</span> <span style='font-size:14px; color:#333;'>回</span><br>
+                        <span style='font-size:12px; color:gray;'>(内訳: 全額自費 {m_pgta['p90_self_trans']:.0f}回)</span>
                     </div>
                     <div>
-                        <span style='font-weight:bold; color:#555;'>最大流産:</span> <span style='font-size:16px;'>{m_pgta['max_mis']:.0f}</span> 回
+                        <span style='font-weight:bold; color:#333;'>最大流産:</span> 
+                        <span style='font-size:20px; font-weight:bold; color:#5D4037;'>{m_pgta['max_mis']:.0f}</span> <span style='font-size:14px; color:#333;'>回</span><br>
+                        <span style='font-size:12px; color:gray;'>(ロスタイム: 最大{m_pgta['max_mis']*3:.0f}ヶ月)</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -459,13 +460,11 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
             with st.container(border=True):
                 st.markdown("🌱 **保険（PGT-Aなし）**")
                 st.markdown(f"<h3 style='margin:0; color:#1E88E5;'>{m_no['median_cost_total']/10000:,.0f} <span style='font-size:16px;'>万円</span></h3>", unsafe_allow_html=True)
-                # ★流産処置費含む旨を注釈に追加
                 st.markdown(f"<span style='font-size:12px;color:gray;'>内訳：保険 約{m_no['median_cost_insurance']/10000:,.0f}万円 ＋ 自費 約{m_no['median_cost_self']/10000:,.0f}万円<br>(流産処置費含む)</span>", unsafe_allow_html=True)
         with c6:
             with st.container(border=True):
                 st.markdown("✨ **PGT-A（全額自費）**")
                 st.markdown(f"<h3 style='margin:0; color:#E53935;'>{m_pgta['median_cost_total']/10000:,.0f} <span style='font-size:16px;'>万円</span></h3>", unsafe_allow_html=True)
-                # ★流産処置費含む旨を注釈に追加
                 st.markdown(f"<span style='font-size:12px;color:gray;'>内訳：全額自費<br>(流産処置費含む)</span>", unsafe_allow_html=True)
 
         st.markdown("**■ 最大総費用 (10人中9人が収まる最大値)**")
@@ -474,13 +473,11 @@ with st.expander("📊 詳細な内訳データを見る（期間・回数・費
             with st.container(border=True):
                 st.markdown("🌱 **保険（PGT-Aなし）**")
                 st.markdown(f"<h4 style='margin:0; color:#666;'>{m_no['p90_cost_total']/10000:,.0f} 万円</h4>", unsafe_allow_html=True)
-                # ★流産処置費含む旨を注釈に追加
                 st.markdown(f"<span style='font-size:12px;color:gray;'>内訳：保険 約{m_no['p90_cost_insurance']/10000:,.0f}万円 ＋ 自費 約{m_no['p90_cost_self']/10000:,.0f}万円<br>(流産処置費含む)</span>", unsafe_allow_html=True)
         with c8:
             with st.container(border=True):
                 st.markdown("✨ **PGT-A（全額自費）**")
                 st.markdown(f"<h4 style='margin:0; color:#666;'>{m_pgta['p90_cost_total']/10000:,.0f} 万円</h4>", unsafe_allow_html=True)
-                # ★流産処置費含む旨を注釈に追加
                 st.markdown(f"<span style='font-size:12px;color:gray;'>内訳：全額自費<br>(流産処置費含む)</span>", unsafe_allow_html=True)
 
 # --- グラフ描画 ---
